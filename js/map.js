@@ -40,6 +40,7 @@ var gmap = {
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
 //                gmap.current = this.id;
+                alert('marker clicked = ' + this.id);
                 gmap.populateInfoWindow(this);
             });
         };
@@ -67,8 +68,7 @@ var gmap = {
     // This function populates the infowindow when the marker is clicked. We'll only allow
     // one infowindow which will open at the marker that is clicked, and populate based
     // on that markers position.
-    populateInfoWindow : function(marker) {
-//    populateInfoWindow : function() {
+    populateInfoWindow : function() {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infoWindow.marker != filteredLocations[current].marker) {
             var theContent = '';
@@ -83,6 +83,24 @@ var gmap = {
             });
             // Open the infowindow on the correct marker.
             infoWindow.open(map, filteredLocations[current].marker);
+        }  
+    },
+
+    populateInfoWindow : function(marker) {
+        // Check to make sure the infowindow is not already opened on this marker.
+        if (infoWindow.marker != marker) {
+            var theContent = '';
+            theContent += '<div>' + '</div>';
+            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
+            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
+            infoWindow.setContent('put content here, including html' + theContent);
+            infoWindow.marker = marker;
+            // Make sure the marker property is cleared if the infowindow is closed.
+            infoWindow.addListener('closeclick', function() {
+                infoWindow.marker = null;
+            });
+            // Open the infowindow on the correct marker.
+            infoWindow.open(map, marker);
         }  
     },
 
