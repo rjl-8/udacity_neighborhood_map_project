@@ -8,6 +8,7 @@ body {
 
 #map {
     height: 100%;
+    z-index: -1;
 }
 
 .hide {
@@ -39,6 +40,7 @@ body {
     height: 100%;
     width: 100px;
     background-color: black;
+    color: white;
     z-index: 1;
 }
 

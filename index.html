@@ -6,6 +6,7 @@
   
     <body>
         <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
+        <script type='text/javascript' src='https://code.jquery.com/jquery-3.3.1.js'></script>        
         <script src='js/locations.js'></script>
         <script src='js/app.js'></script>
         <script src='js/map.js'></script>
@@ -13,7 +14,10 @@
         <div id='leftpane' class='leftpane compressed'>
             <img data-bind='click: clickBurger' src='images/hamburger.jpg' alt='menu' class='twenty topleft'>
             <div id='detailarea' class='hide'>
-                <input type='text' id='filter' data-bind='textInput: filter'>
+                <input type='text' data-bind='textInput: filterText'>
+                <div id='list' data-bind='foreach: filteredLocations'>
+                    <div data-bind='text: title'></div>
+                </div>
             </div>
         </div>
 

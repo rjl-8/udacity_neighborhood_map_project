@@ -1,18 +1,3 @@
-var populateInfoWindow = function(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
-    if (infowindow.marker != locations[current].marker) {
-        infowindow.setContent('put content here, including html');
-        infowindow.marker = locations[current].marker;
-        // Make sure the marker property is cleared if the infowindow is closed.
-        infowindow.addListener('closeclick', function() {
-            infowindow.marker = null;
-        });
-        // Open the infowindow on the correct marker.
-        infowindow.open(map, locations[current].marker);
-    }  
-};
-
-
 var gmap = {
     self : this,
     map : null,
@@ -38,7 +23,7 @@ var gmap = {
 
         infoWindow = new google.maps.InfoWindow();
 
-        // Set up markers based on locations
+        // Set up markers based on filteredLocations
         for (var i = 0; i < locations.length; i++) {
             // Get the position from the location array.
             var position = locations[i].location;
@@ -54,24 +39,27 @@ var gmap = {
             
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
-                current = this.id;
-                ViewModel.populateInfoWindow(this, infoWindow);
+//                gmap.current = this.id;
+                gmap.populateInfoWindow(this);
             });
         };
 
         this.showListings();
 
         // initiate the view model and ko bindings
-        var theViewModel = new ViewModel(locations);
+        var theViewModel = new ViewModel();
         ko.applyBindings(theViewModel);
+//        theViewModel.filter.subscribe(function (newValue) {
+//            theViewModel.filterLocations();
+//        });
     },
 
     showListings : function() {
         var bounds = new google.maps.LatLngBounds();
         // Extend the boundaries of the map for each marker and display the marker
-        for (var i = 0; i < locations.length; i++) {
-            locations[i].marker.setMap(map);
-            bounds.extend(locations[i].marker.position);
+        for (var i = 0; i < filteredLocations.length; i++) {
+            filteredLocations[i].marker.setMap(map);
+            bounds.extend(filteredLocations[i].marker.position);
         }
         map.fitBounds(bounds);
     },
@@ -79,18 +67,22 @@ var gmap = {
     // This function populates the infowindow when the marker is clicked. We'll only allow
     // one infowindow which will open at the marker that is clicked, and populate based
     // on that markers position.
-//    populateInfoWindow : function(marker, infoWindow) {
-    populateInfoWindow : function() {
+    populateInfoWindow : function(marker) {
+//    populateInfoWindow : function() {
         // Check to make sure the infowindow is not already opened on this marker.
-        if (infoWindow.marker != locations[current].marker) {
-            infoWindow.setContent('put content here, including html');
-            infoWindow.marker = locations[current].marker;
+        if (infoWindow.marker != filteredLocations[current].marker) {
+            var theContent = '';
+            theContent += '<div>' + filteredLocations[current].title + '</div>';
+            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
+            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
+            infoWindow.setContent('put content here, including html' + theContent);
+            infoWindow.marker = filteredLocations[current].marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infoWindow.addListener('closeclick', function() {
                 infoWindow.marker = null;
             });
             // Open the infowindow on the correct marker.
-            infoWindow.open(map, locations[current].marker);
+            infoWindow.open(map, filteredLocations[current].marker);
         }  
     },
 
