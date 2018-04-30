@@ -81,7 +81,13 @@ for (var i = 0; i < locations.length; i++) {
         };
 
         this.selectLocation = function () {
-            alert(this.title);
+//            alert(this.title);
+            for (var i = 0; i < filteredLocations.length; i++) {
+                if (filteredLocations[i].title == this.title) {
+                    gmap.current = i;
+                }
+            }
+            gmap.selectLocation();
         };
 
         this.init = function () {

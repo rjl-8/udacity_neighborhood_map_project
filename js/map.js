@@ -5,7 +5,8 @@ var gmap = {
     current : null,
     infoWindow : null,
 
-//    markers : [],
+    defaultIcon : null,
+    highlightedIcon : null,
 
     initMap : function() {
         // Constructor creates a new map - only center and zoom are required.
@@ -15,11 +16,11 @@ var gmap = {
         });
 
         // Style the markers a bit. This will be our listing marker icon.
-        var defaultIcon = this.makeMarkerIcon('0091ff');
+        defaultIcon = this.makeMarkerIcon('0091ff');
 
         // Create a "highlighted location" marker color for when the user
-        // mouses over the marker.
-        var highlightedIcon = this.makeMarkerIcon('FFFF24');
+        // selects the location.
+        highlightedIcon = this.makeMarkerIcon('FFFF24');
 
         infoWindow = new google.maps.InfoWindow();
 
@@ -39,9 +40,10 @@ var gmap = {
             
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
-//                gmap.current = this.id;
+                gmap.current = this.id;
                 alert('marker clicked = ' + this.id);
-                gmap.populateInfoWindow(this);
+                gmap.selectLocation();
+                gmap.populateInfoWindow();
             });
         };
 
@@ -68,6 +70,13 @@ var gmap = {
             bounds.extend(filteredLocations[i].marker.position);
         }
         map.fitBounds(bounds);
+    },
+
+    selectLocation : function() {
+        for (var i = 0; i < filteredLocations.length; i++) {
+            filteredLocations[i].marker.setIcon(defaultIcon);
+        }
+        filteredLocations[this.current].marker.setIcon(highlightedIcon);
     },
 
     // This function populates the infowindow when the marker is clicked. We'll only allow
