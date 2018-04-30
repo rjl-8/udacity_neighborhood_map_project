@@ -10,6 +10,12 @@ for (var i = 0; i < locations.length; i++) {
 
         this.filterText = ko.observable('');
 
+        this.currentLocations = ko.observableArray();
+        for (var i = 0; i < locations.length; i++) {
+            var obj = locations[i];
+            this.currentLocations.push(obj);
+        };
+
 //        this.mapLoadStatus = ko.observable('');
 //        this.mapLoadStatus.subscribe(function (newValue) {
 //            self.initMapCode();
@@ -40,6 +46,8 @@ for (var i = 0; i < locations.length; i++) {
             // toggle leftpane to expand or contract it
 //            alert('clickBurger!');
             this.toggleClass('leftpane', 'compressed');
+            this.toggleClass('leftpane', 'uncompressed');
+            this.toggleClass('detailarea', 'hide');
             if (!document.getElementById('leftpane').className.indexOf('compressed') != -1) {
                 this.filterLocations();
             }
@@ -59,14 +67,21 @@ for (var i = 0; i < locations.length; i++) {
 //            alert('in filterLocations');
 
             filteredLocations = [];
+            this.currentLocations.removeAll();
             var j = 0;
             for (var i = 0; i < locations.length; i++) {
-                if (locations[i].title.indexOf(this.filterText()) != -1
+                if (locations[i].title.toLowerCase().indexOf(this.filterText().toLowerCase()) != -1
                     || this.filterText().trim() == '') {
                     var obj = locations[i];
                     filteredLocations[j++] = obj;
+                    this.currentLocations.push(obj);
                 };
             };
+            gmap.showListings();
+        };
+
+        this.selectLocation = function () {
+            alert(this.title);
         };
 
         this.init = function () {

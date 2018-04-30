@@ -6,6 +6,11 @@ body {
     padding: 0;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+}
+
 #map {
     height: 100%;
     z-index: -1;
@@ -26,6 +31,14 @@ body {
     width: 20px;
 }
 
+.top {
+    top: 0px;
+}
+
+.left {
+    left: 0px;
+}
+
 .topleft {
     top: 0px;
     left: 0px;
@@ -38,7 +51,6 @@ body {
     top: 0px;
     left: 0px;
     height: 100%;
-    width: 100px;
     background-color: black;
     color: white;
     z-index: 1;
@@ -46,5 +58,9 @@ body {
 
 .compressed {
     width: 20px;
+}
+
+.uncompressed {
+    width: 150px;
 }
 

@@ -56,6 +56,11 @@ var gmap = {
     },
 
     showListings : function() {
+        // Remove current markers from map
+        for (var i = 0; i < locations.length; i++) {
+            locations[i].marker.setMap(null);
+        }
+
         var bounds = new google.maps.LatLngBounds();
         // Extend the boundaries of the map for each marker and display the marker
         for (var i = 0; i < filteredLocations.length; i++) {
