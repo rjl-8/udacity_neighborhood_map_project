@@ -1,0 +1,48 @@
+html,
+body {
+    font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    height: 100%;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.twenty {
+    margin: 0;
+    padding: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.topleft {
+    top: 0px;
+    left: 0px;
+}
+
+.leftpane {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100px;
+    background-color: black;
+    z-index: 1;
+}
+
+.compressed {
+    width: 20px;
+}
+
