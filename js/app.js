@@ -1,12 +1,19 @@
+// setup filteredLocations array
+// and initialize location id's
 var filteredLocations = [];
 for (var i = 0; i < locations.length; i++) {
+    locations[i].id = i;
     var obj = locations[i];
     filteredLocations[i] = obj;
 };
 
+var theViewModel = null;
+
 //(function () {
     var ViewModel = function() {
         var self = this;
+
+        this.currentIdx = ko.observable(-1);
 
         this.filterText = ko.observable('');
 
@@ -44,24 +51,13 @@ for (var i = 0; i < locations.length; i++) {
 
         this.clickBurger = function() {
             // toggle leftpane to expand or contract it
-//            alert('clickBurger!');
-            this.toggleClass('leftpane', 'compressed');
-            this.toggleClass('leftpane', 'uncompressed');
-            this.toggleClass('detailarea', 'hide');
-            if (!document.getElementById('leftpane').className.indexOf('compressed') != -1) {
+            $('#leftpane').toggleClass('compressed');
+            $('#leftpane').toggleClass('uncompressed');
+            $('#detailarea').toggleClass('hide');
+            if ($('#leftpane').hasClass('uncompressed')) {
                 this.filterLocations();
             }
         };
-
-        this.toggleClass = function(inId, inClass) {
-            if (document.getElementById(inId).className.indexOf(inClass) != -1) {
-                document.getElementById(inId).className = document.getElementById(inId).className.replace(inClass, '').trim();
-                this.filterLocations();
-            }
-            else {
-                document.getElementById(inId).className = document.getElementById(inId).className.trim() + ' ' + inClass;
-            }
-        }
 
         this.filterLocations = function () {
 //            alert('in filterLocations');
@@ -78,16 +74,29 @@ for (var i = 0; i < locations.length; i++) {
                 };
             };
             gmap.showListings();
+            this.selectLocationFromGmap();
         };
 
         this.selectLocation = function () {
-//            alert(this.title);
             for (var i = 0; i < filteredLocations.length; i++) {
+                $('#idx' + filteredLocations[i].id).removeClass('grayback').addClass('blackback')
                 if (filteredLocations[i].title == this.title) {
                     gmap.current = i;
                 }
             }
+            $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
+            
             gmap.selectLocation();
+        };
+
+        this.selectLocationFromGmap = function () {
+//            alert('in selectLocationFromGmap')
+            for (var i = 0; i < filteredLocations.length; i++) {
+                $('#idx' + filteredLocations[i].id).removeClass('grayback').addClass('blackback')
+            }
+            if (gmap.current != -1) {
+                $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
+            }
         };
 
         this.init = function () {

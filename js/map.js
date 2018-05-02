@@ -41,16 +41,14 @@ var gmap = {
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
                 gmap.current = this.id;
-                alert('marker clicked = ' + this.id);
                 gmap.selectLocation();
-                gmap.populateInfoWindow();
             });
         };
 
         this.showListings();
 
         // initiate the view model and ko bindings
-        var theViewModel = new ViewModel();
+        theViewModel = new ViewModel();
         ko.applyBindings(theViewModel);
 //        theViewModel.filter.subscribe(function (newValue) {
 //            theViewModel.filterLocations();
@@ -58,6 +56,7 @@ var gmap = {
     },
 
     showListings : function() {
+//        alert('in gmap.showListings')
         // Remove current markers from map
         for (var i = 0; i < locations.length; i++) {
             locations[i].marker.setMap(null);
@@ -77,6 +76,9 @@ var gmap = {
             filteredLocations[i].marker.setIcon(defaultIcon);
         }
         filteredLocations[this.current].marker.setIcon(highlightedIcon);
+        gmap.populateInfoWindow();
+
+        theViewModel.selectLocationFromGmap();
     },
 
     // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -84,38 +86,64 @@ var gmap = {
     // on that markers position.
     populateInfoWindow : function() {
         // Check to make sure the infowindow is not already opened on this marker.
-        if (infoWindow.marker != filteredLocations[current].marker) {
+        if (infoWindow.marker != filteredLocations[gmap.getCurrentIdx()].marker) {
             var theContent = '';
-            theContent += '<div>' + filteredLocations[current].title + '</div>';
-            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
-            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
+            theContent += '<div>' + filteredLocations[gmap.getCurrentIdx()].title + '</div>';
+//            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
+//            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
+            theContent += '<button id="btnAjaxGoogleMaps">+</button> GoogleMaps<br/><div id="googleMapsResults"></div>';
+            theContent += '<button id="btnAjaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
             infoWindow.setContent('put content here, including html' + theContent);
-            infoWindow.marker = filteredLocations[current].marker;
+            infoWindow.marker = filteredLocations[gmap.getCurrentIdx()].marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infoWindow.addListener('closeclick', function() {
                 infoWindow.marker = null;
             });
             // Open the infowindow on the correct marker.
-            infoWindow.open(map, filteredLocations[current].marker);
+            infoWindow.open(map, filteredLocations[gmap.getCurrentIdx()].marker);
+            document.getElementById('btnAjaxWikipedia').addEventListener('click', function () {
+                alert('in ajaxWikipedia');
+                var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle.replace(' ', '_') + '">WikiPedia</a>';
+                var ajaxSettings = {
+                    success: function(result) {
+                            
+//                            thehtml += '<br />Description: ' + result.query.pages.143087.description + '<br/>';
+//                            if (result.query.pages.143087.images[0]) {
+//                                thehtml += '"https://en.wikipedia.org/wiki/' + result.query.pages.143087.images[0].title.replace(' ', '_') + '"'
+//                            }
+                        
+                    },
+                    error: function(result) {
+                        thehtml += '<br />Error retrieving Wikipedia data';
+                    }
+                }
+                $("#wikipediaResults").html(thehtml);
+/*
+                $.ajax("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=Alamo%20Mission%20in%20San%20Antonio"
+                        , {success: function(result) {
+                            var thehtml = 'View page in <a href="">WikiPedia</a>';
+                            
+//                            thehtml += 'Description: ' + result.query.pages.143087.description + '<br/>';
+//                            if (result.query.pages.143087.images[0]) {
+//                                thehtml += '"https://en.wikipedia.org/wiki/' + result.query.pages.143087.images[0].title.replace(' ', '_') + '"'
+//                            }
+
+                            $(".wikipediaResults").html(thehtml);
+                }})
+*/            
+            })
         }  
     },
 
-    populateInfoWindow : function(marker) {
-        // Check to make sure the infowindow is not already opened on this marker.
-        if (infoWindow.marker != marker) {
-            var theContent = '';
-            theContent += '<div>' + '</div>';
-            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
-            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
-            infoWindow.setContent('put content here, including html' + theContent);
-            infoWindow.marker = marker;
-            // Make sure the marker property is cleared if the infowindow is closed.
-            infoWindow.addListener('closeclick', function() {
-                infoWindow.marker = null;
-            });
-            // Open the infowindow on the correct marker.
-            infoWindow.open(map, marker);
-        }  
+    getCurrentIdx : function() {
+        var retval = gmap.current;
+        for (var i = 0; i < filteredLocations.length; i++) {
+            if (filteredLocations[i].id == gmap.current) {
+                retval = i;
+            }
+        }
+
+        return retval;
     },
 
     // This function takes in a COLOR, and then creates a new marker

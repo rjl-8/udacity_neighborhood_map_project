@@ -13,7 +13,6 @@ body {
 
 #map {
     height: 100%;
-    z-index: -1;
 }
 
 .hide {
@@ -64,3 +63,14 @@ body {
     width: 150px;
 }
 
+.listItem {
+    border: solid white 1px;
+}
+
+.blackback {
+    background-color: black;
+}
+
+.grayback {
+    background-color: gray;
+}
