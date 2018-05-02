@@ -1,3 +1,7 @@
+function logResults(jsonresults) {
+    console.log(jsonresults)
+}
+
 var gmap = {
     self : this,
     map : null,
@@ -16,11 +20,11 @@ var gmap = {
         });
 
         // Style the markers a bit. This will be our listing marker icon.
-        defaultIcon = this.makeMarkerIcon('0091ff');
+        defaultIcon = this.makeMarkerIcon('ff3333');
 
         // Create a "highlighted location" marker color for when the user
         // selects the location.
-        highlightedIcon = this.makeMarkerIcon('FFFF24');
+        highlightedIcon = this.makeMarkerIcon('0091ff');
 
         infoWindow = new google.maps.InfoWindow();
 
@@ -103,10 +107,66 @@ var gmap = {
             infoWindow.open(map, filteredLocations[gmap.getCurrentIdx()].marker);
             document.getElementById('btnAjaxWikipedia').addEventListener('click', function () {
                 alert('in ajaxWikipedia');
-                var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle.replace(' ', '_') + '">WikiPedia</a>';
+                var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle + '">WikiPedia</a>';
+
+/*
+$.ajax( {
+    url: 'https://en.wikipedia.org/w/api.php',
+    data: {
+        action: 'query',
+        meta: 'userinfo',
+        format: 'json',
+        origin: 'https://www.mediawiki.org'
+    },
+    xhrFields: {
+        withCredentials: true
+    },
+    dataType: 'json'
+} ).done( function ( data ) {
+    alert( 'Foreign user ' + data.query.userinfo.name +
+        ' (ID ' + data.query.userinfo.id + ')' );
+} );
+*/
+/*
+$.ajax( {
+    url: 'https://en.wikipedia.org/w/api.php',
+    data: {
+        action: 'query',
+        prop: 'description|images',
+        format: 'json',
+        titles: filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+        origin: 'http://localhost/udacity/FEND/advintsites/proj2/'
+    },
+    xhrFields: {
+        withCredentials: true
+    },
+    dataType: 'json'
+} ).done( function ( data ) {
+    alert( 'successtest' );
+} );
+*/
+
+/*
+function logResults(json){
+  console.log(json);
+}
+
+$.ajax({
+  url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+  dataType: "jsonp",
+  jsonpCallback: "logResults"
+});
+*/
+$.ajax({
+  url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+  dataType: "jsonp",
+  jsonpCallback: "logResults"
+});
+
                 var ajaxSettings = {
+                    xhrFields: {withCredentials: true},
                     success: function(result) {
-                            
+                        alert('success')
 //                            thehtml += '<br />Description: ' + result.query.pages.143087.description + '<br/>';
 //                            if (result.query.pages.143087.images[0]) {
 //                                thehtml += '"https://en.wikipedia.org/wiki/' + result.query.pages.143087.images[0].title.replace(' ', '_') + '"'
@@ -117,7 +177,10 @@ var gmap = {
                         thehtml += '<br />Error retrieving Wikipedia data';
                     }
                 }
-                $("#wikipediaResults").html(thehtml);
+                // temporary position of this line
+//                $("#wikipediaResults").html(thehtml);
+//                $.ajax('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+//                        ajaxSettings);
 /*
                 $.ajax("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=Alamo%20Mission%20in%20San%20Antonio"
                         , {success: function(result) {
