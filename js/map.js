@@ -92,12 +92,15 @@ var gmap = {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infoWindow.marker != filteredLocations[gmap.getCurrentIdx()].marker) {
             var theContent = '';
-            theContent += '<div>' + filteredLocations[gmap.getCurrentIdx()].title + '</div>';
-//            theContent += '<button data-bind="click : ajaxGoogleMaps">+</button> GoogleMaps<br/>';
-//            theContent += '<button data-bind="click : ajaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
-            theContent += '<button id="btnAjaxGoogleMaps">+</button> GoogleMaps<br/><div id="googleMapsResults"></div>';
-            theContent += '<button id="btnAjaxWikipedia">+</button> Wikipedia<br/><div id="wikipediaResults"></div>';
-            infoWindow.setContent('put content here, including html' + theContent);
+            theContent += '<div><strong>' + filteredLocations[gmap.getCurrentIdx()].title + '</strong></div>';
+            theContent += '<br/>';
+            theContent += '<button id="btnAjaxGoogleMaps">+</button> GoogleMaps<br/>';
+            theContent += '<div id="googleMapsResults"></div>';
+            theContent += '<div style="border: solid 1px black">';
+            theContent += '<button id="btnAjaxWikipedia">+</button> Wikipedia<br/>';
+            theContent += '<div id="wikipediaResults"></div>';
+            theContent += '</div>';
+            infoWindow.setContent(theContent);
             infoWindow.marker = filteredLocations[gmap.getCurrentIdx()].marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infoWindow.addListener('closeclick', function() {
@@ -106,96 +109,53 @@ var gmap = {
             // Open the infowindow on the correct marker.
             infoWindow.open(map, filteredLocations[gmap.getCurrentIdx()].marker);
             document.getElementById('btnAjaxWikipedia').addEventListener('click', function () {
-                alert('in ajaxWikipedia');
+//                alert('in ajaxWikipedia');
                 var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle + '">WikiPedia</a>';
 
-/*
-$.ajax( {
-    url: 'https://en.wikipedia.org/w/api.php',
-    data: {
-        action: 'query',
-        meta: 'userinfo',
-        format: 'json',
-        origin: 'https://www.mediawiki.org'
-    },
-    xhrFields: {
-        withCredentials: true
-    },
-    dataType: 'json'
-} ).done( function ( data ) {
-    alert( 'Foreign user ' + data.query.userinfo.name +
-        ' (ID ' + data.query.userinfo.id + ')' );
-} );
-*/
-/*
-$.ajax( {
-    url: 'https://en.wikipedia.org/w/api.php',
-    data: {
-        action: 'query',
-        prop: 'description|images',
-        format: 'json',
-        titles: filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
-        origin: 'http://localhost/udacity/FEND/advintsites/proj2/'
-    },
-    xhrFields: {
-        withCredentials: true
-    },
-    dataType: 'json'
-} ).done( function ( data ) {
-    alert( 'successtest' );
-} );
-*/
-
-/*
-function logResults(json){
-  console.log(json);
-}
-
-$.ajax({
-  url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
-  dataType: "jsonp",
-  jsonpCallback: "logResults"
-});
-*/
-$.ajax({
-  url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
-  dataType: "jsonp",
-  jsonpCallback: "logResults"
-});
-
-                var ajaxSettings = {
-                    xhrFields: {withCredentials: true},
-                    success: function(result) {
-                        alert('success')
-//                            thehtml += '<br />Description: ' + result.query.pages.143087.description + '<br/>';
-//                            if (result.query.pages.143087.images[0]) {
-//                                thehtml += '"https://en.wikipedia.org/wiki/' + result.query.pages.143087.images[0].title.replace(' ', '_') + '"'
-//                            }
-                        
-                    },
-                    error: function(result) {
-                        thehtml += '<br />Error retrieving Wikipedia data';
-                    }
-                }
-                // temporary position of this line
-//                $("#wikipediaResults").html(thehtml);
-//                $.ajax('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
-//                        ajaxSettings);
-/*
-                $.ajax("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=Alamo%20Mission%20in%20San%20Antonio"
-                        , {success: function(result) {
-                            var thehtml = 'View page in <a href="">WikiPedia</a>';
-                            
-//                            thehtml += 'Description: ' + result.query.pages.143087.description + '<br/>';
-//                            if (result.query.pages.143087.images[0]) {
-//                                thehtml += '"https://en.wikipedia.org/wiki/' + result.query.pages.143087.images[0].title.replace(' ', '_') + '"'
-//                            }
-
-                            $(".wikipediaResults").html(thehtml);
-                }})
-*/            
+                $.ajax({
+                    url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+                    dataType: "jsonp",
+                    jsonpCallback: "gmap.wikipediaCallback"
+                });
             })
         }  
+    },
+
+    wikipediaCallback : function(data) {
+//        console.log(data);
+//        console.log(data.query.pages[Object.keys(data.query.pages)[0]])
+        var theResults = data.query.pages[Object.keys(data.query.pages)[0]];
+
+        var thehtml = '';
+        thehtml += 'Description<br/>';
+        if (theResults.description) {
+            thehtml += theResults.description;
+        }
+        else {
+            thehtml += '<i>no description available</i>';
+        }
+        thehtml += '<br/>';
+        if (theResults.images[0]) {
+            thehtml += '<div id="wikiImg"></div>'
+            $.ajax({
+                url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=' + theResults.images[0].title,
+                dataType: "jsonp",
+                jsonpCallback: "gmap.wikipediaImgCallback"
+            });
+        }
+        else {
+            thehtml += '<i>no images available</i>'
+        }
+
+        $("#wikipediaResults").html(thehtml);
+    },
+
+    wikipediaImgCallback : function(data) {
+//        console.log(data);
+//        console.log(data.query.pages[Object.keys(data.query.pages)[0]].imageinfo[0].url)
+        var thehtml = '';
+        thehtml += '<img style="width: 250px" src="' + data.query.pages[Object.keys(data.query.pages)[0]].imageinfo[0].url + '" alt=""></img>';
+        $("#wikiImg").html(thehtml);
     },
 
     getCurrentIdx : function() {
