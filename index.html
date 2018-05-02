@@ -12,7 +12,7 @@
         <script src='js/map.js'></script>
 
         <div id='leftpane' class='leftpane compressed'>
-            <img data-bind='click: clickBurger' src='images/hamburger.jpg' alt='menu' class='twenty topleft'>
+            <img data-bind='click: clickBurger' src='images/hamburger.jpg' alt='menu' class='twenty top left'>
             <div id='detailarea' class='hide'>
                 <input type='text' class='uncompressed left' data-bind='value: filterText'>
                 <button data-bind='click: filterLocations'>Filter</button>
@@ -23,8 +23,6 @@
         </div>
 
         <div id="map"></div>
-
-        <div id='mapLoadStatus' class='hide' data-bind='text: mapLoadStatus'></div>
 
         <script async defer
             src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyB9X-rT5tRm0dKvQoFEjZu4Raa68P2gmU0&v=3&callback=gmap.initMap">

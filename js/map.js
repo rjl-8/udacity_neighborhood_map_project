@@ -1,7 +1,3 @@
-function logResults(jsonresults) {
-    console.log(jsonresults)
-}
-
 var gmap = {
     self : this,
     map : null,
@@ -12,6 +8,7 @@ var gmap = {
     defaultIcon : null,
     highlightedIcon : null,
 
+    // google maps initial callback function
     initMap : function() {
         // Constructor creates a new map - only center and zoom are required.
         map = new google.maps.Map(document.getElementById('map'), {
@@ -54,13 +51,10 @@ var gmap = {
         // initiate the view model and ko bindings
         theViewModel = new ViewModel();
         ko.applyBindings(theViewModel);
-//        theViewModel.filter.subscribe(function (newValue) {
-//            theViewModel.filterLocations();
-//        });
     },
 
+    // show all the markers for the filtered list
     showListings : function() {
-//        alert('in gmap.showListings')
         // Remove current markers from map
         for (var i = 0; i < locations.length; i++) {
             locations[i].marker.setMap(null);
@@ -75,6 +69,8 @@ var gmap = {
         map.fitBounds(bounds);
     },
 
+    // perform actions based on selection of a location, either through
+    // marker or list
     selectLocation : function() {
         for (var i = 0; i < filteredLocations.length; i++) {
             filteredLocations[i].marker.setIcon(defaultIcon);
@@ -85,7 +81,7 @@ var gmap = {
         theViewModel.selectLocationFromGmap();
     },
 
-    // This function populates the infowindow when the marker is clicked. We'll only allow
+    // This function populates the infowindow when a location is selected. We'll only allow
     // one infowindow which will open at the marker that is clicked, and populate based
     // on that markers position.
     populateInfoWindow : function() {
@@ -95,11 +91,13 @@ var gmap = {
             theContent += '<div><strong>' + filteredLocations[gmap.getCurrentIdx()].title + '</strong></div>';
             theContent += '<br/>';
 
+            // area for google places info
             theContent += '<div style="border: solid 1px black">';
             theContent += '<button id="btnAjaxGoogleMaps">+</button> GoogleMaps<br/>';
             theContent += '<div id="googleMapsResults"></div>';
             theContent += '</div>';
 
+            // area for wikipedia info
             theContent += '<div style="border: solid 1px black">';
             theContent += '<button id="btnAjaxWikipedia">+</button> Wikipedia<br/>';
             theContent += '<div id="wikipediaResults"></div>';
@@ -114,28 +112,42 @@ var gmap = {
             // Open the infowindow on the correct marker.
             infoWindow.open(map, filteredLocations[gmap.getCurrentIdx()].marker);
 
-            // GooglePlaces ajax call button code
+            // GooglePlaces call button code
             document.getElementById('btnAjaxGoogleMaps').addEventListener('click', function() {
-                gmap.getPlacesDetails();
+                if ($("#btnAjaxGoogleMaps").html() == '+') {
+                    gmap.getPlacesDetails();
+                    $("#btnAjaxGoogleMaps").html('--');
+                }
+                else {
+                    $("#googleMapsResults").html('');
+                    $("#btnAjaxGoogleMaps").html('+');
+                }
             });
 
             // Wikipedia ajax call button code
             document.getElementById('btnAjaxWikipedia').addEventListener('click', function () {
-//                alert('in ajaxWikipedia');
-                var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle + '">WikiPedia</a>';
+                if ($("#btnAjaxWikipedia").html() == '+') {
+                    var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle + '">WikiPedia</a>';
 
-                $.ajax({
-                    url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
-                    dataType: "jsonp",
-                    jsonpCallback: "gmap.wikipediaCallback"
-                });
+                    var request = {
+                        url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=description|images&titles=' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle,
+                        dataType: "jsonp",
+                        jsonpCallback: "gmap.wikipediaCallback"
+                    }
+                    $.ajax(request);
+                    $("#btnAjaxWikipedia").html('--');
+                }
+                else {
+                    $("#wikipediaResults").html('');
+                    $("#btnAjaxWikipedia").html('+');
+                }
             })
         }  
     },
 
+    // Wikipedia functions
+    // *******************
     wikipediaCallback : function(data) {
-//        console.log(data);
-//        console.log(data.query.pages[Object.keys(data.query.pages)[0]])
         var theResults = data.query.pages[Object.keys(data.query.pages)[0]];
 
         var thehtml = '';
@@ -146,30 +158,53 @@ var gmap = {
         else {
             thehtml += '<i>no description available</i>';
         }
-        thehtml += '<br/>';
-        if (theResults.images[0]) {
+        // find a suitable image
+        var imgidx = -1;
+        for (var i = 0; i < theResults.images.length && imgidx == -1; i++) {
+            var fnd = true;
+            // avoid selecting the common logo
+            if (theResults.images[i].title.indexOf('Commons-logo.svg') != -1) {
+                fnd = false;
+            }
+            // avoid svg's as we are targeting drawings or pictures
+            if (theResults.images[i].title.indexOf('.svg') != -1) {
+                fnd = false;
+            }
+            if (fnd) {
+                imgidx = i;
+            }
+        }
+        // if an image was found, make ajax call to get image url
+        if (imgidx != -1 && theResults.images[imgidx]) {
+            thehtml += '<br/>';
             thehtml += '<div id="wikiImg"></div>'
-            $.ajax({
-                url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=' + theResults.images[0].title,
+            var request = {
+                url: 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=' + theResults.images[imgidx].title,
                 dataType: "jsonp",
                 jsonpCallback: "gmap.wikipediaImgCallback"
-            });
+            }
+            $.ajax(request);
         }
         else {
-            thehtml += '<i>no images available</i>'
+            thehtml += '<br/><i>no images available</i>'
         }
 
         $("#wikipediaResults").html(thehtml);
     },
 
+    // callback for wikipedia image url
     wikipediaImgCallback : function(data) {
         var thehtml = '';
         thehtml += '<img style="width: 250px" src="' + data.query.pages[Object.keys(data.query.pages)[0]].imageinfo[0].url + '" alt=""></img>';
         $("#wikiImg").html(thehtml);
     },
+    // end Wikipedia functions
+    // ***********************
 
     // Google Places functions
     // ***********************
+    // initial call - just used to find the place_id for a more
+    // detailed google places call
     getPlacesDetails : function () {
         var request = {
             location: map.getCenter(),
@@ -181,6 +216,8 @@ var gmap = {
         service.textSearch(request, gmap.textSearchCallback);
     },
 
+    // textSearch callback - just used to get the place_id and 
+    // initiate another google places call
     textSearchCallback : function(places, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             var service = new google.maps.places.PlacesService(map);
@@ -194,9 +231,8 @@ var gmap = {
         }
     },
 
+    // the google places getDetail callback
     getDetailsCallback : function(place, status) {
-        console.log(place)
-        console.log(status)
         var thehtml = '';
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             if (place.formatted_address) {
@@ -208,7 +244,7 @@ var gmap = {
             }
         }
         else {
-            thehtml = '<i>error in GooglePlaces</i>'
+            thehtml = '<br/><i>error in GooglePlaces</i>'
         }
 
         $("#googleMapsResults").html(thehtml);
@@ -216,6 +252,7 @@ var gmap = {
     // end Google Places functions
     // ***************************
 
+    // method for keeping track of the currently selected location
     getCurrentIdx : function() {
         var retval = gmap.current;
         for (var i = 0; i < filteredLocations.length; i++) {
@@ -240,5 +277,4 @@ var gmap = {
             new google.maps.Size(21,34));
         return markerImage;
     }
-
 }
