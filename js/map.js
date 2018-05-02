@@ -94,12 +94,17 @@ var gmap = {
             var theContent = '';
             theContent += '<div><strong>' + filteredLocations[gmap.getCurrentIdx()].title + '</strong></div>';
             theContent += '<br/>';
+
+            theContent += '<div style="border: solid 1px black">';
             theContent += '<button id="btnAjaxGoogleMaps">+</button> GoogleMaps<br/>';
             theContent += '<div id="googleMapsResults"></div>';
+            theContent += '</div>';
+
             theContent += '<div style="border: solid 1px black">';
             theContent += '<button id="btnAjaxWikipedia">+</button> Wikipedia<br/>';
             theContent += '<div id="wikipediaResults"></div>';
             theContent += '</div>';
+
             infoWindow.setContent(theContent);
             infoWindow.marker = filteredLocations[gmap.getCurrentIdx()].marker;
             // Make sure the marker property is cleared if the infowindow is closed.
@@ -108,6 +113,13 @@ var gmap = {
             });
             // Open the infowindow on the correct marker.
             infoWindow.open(map, filteredLocations[gmap.getCurrentIdx()].marker);
+
+            // GooglePlaces ajax call button code
+            document.getElementById('btnAjaxGoogleMaps').addEventListener('click', function() {
+                gmap.getPlacesDetails();
+            });
+
+            // Wikipedia ajax call button code
             document.getElementById('btnAjaxWikipedia').addEventListener('click', function () {
 //                alert('in ajaxWikipedia');
                 var thehtml = 'View page in <a target="_blank" href="https://en.wikipedia.org/wiki/' + filteredLocations[gmap.getCurrentIdx()].wikipediaTitle + '">WikiPedia</a>';
@@ -151,12 +163,58 @@ var gmap = {
     },
 
     wikipediaImgCallback : function(data) {
-//        console.log(data);
-//        console.log(data.query.pages[Object.keys(data.query.pages)[0]].imageinfo[0].url)
         var thehtml = '';
         thehtml += '<img style="width: 250px" src="' + data.query.pages[Object.keys(data.query.pages)[0]].imageinfo[0].url + '" alt=""></img>';
         $("#wikiImg").html(thehtml);
     },
+
+    // Google Places functions
+    // ***********************
+    getPlacesDetails : function () {
+        var request = {
+            location: map.getCenter(),
+            radius: '5000',
+            query: filteredLocations[gmap.getCurrentIdx()].googleAddress
+        };
+
+        var service = new google.maps.places.PlacesService(map);
+        service.textSearch(request, gmap.textSearchCallback);
+    },
+
+    textSearchCallback : function(places, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            var service = new google.maps.places.PlacesService(map);
+            var request = {
+                placeId : places[0].place_id
+            };
+            service.getDetails({placeId : places[0].place_id}, gmap.getDetailsCallback);
+        }
+        else {
+            $("#googleMapsResults").html('<i>error in GooglePlaces</i>');
+        }
+    },
+
+    getDetailsCallback : function(place, status) {
+        console.log(place)
+        console.log(status)
+        var thehtml = '';
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            if (place.formatted_address) {
+                thehtml += '<br/>Address'
+                thehtml += '<br/>' + place.formatted_address;
+            }
+            if (place.website) {
+                thehtml += '<br><a href="' + place.website + '">' + place.website + '</a>';
+            }
+        }
+        else {
+            thehtml = '<i>error in GooglePlaces</i>'
+        }
+
+        $("#googleMapsResults").html(thehtml);
+    },
+    // end Google Places functions
+    // ***************************
 
     getCurrentIdx : function() {
         var retval = gmap.current;
