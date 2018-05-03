@@ -12,9 +12,9 @@ var theViewModel = null;
 
 // the viewmodel object
 var ViewModel = function() {
-    var self = this;
-
     this.filterText = ko.observable('');
+
+    this.mapError = ko.observable('');
 
     this.currentLocations = ko.observableArray();
     for (var i = 0; i < locations.length; i++) {
@@ -73,5 +73,11 @@ var ViewModel = function() {
         if (gmap.current != null) {
             $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
         }
+    };
+
+    // handle errors loading google map scripts
+    this.mapError = function () {
+        $('#leftpane').toggleClass('hide');
+        this.mapError = '<h1>Error loading Google Map scripts</h1>'
     };
 };

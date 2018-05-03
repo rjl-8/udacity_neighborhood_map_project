@@ -75,7 +75,7 @@ var gmap = {
         for (var i = 0; i < filteredLocations.length; i++) {
             filteredLocations[i].marker.setIcon(defaultIcon);
         }
-        filteredLocations[this.current].marker.setIcon(highlightedIcon);
+        filteredLocations[gmap.getCurrentIdx()].marker.setIcon(highlightedIcon);
         gmap.populateInfoWindow();
 
         theViewModel.selectLocationFromGmap();
@@ -134,7 +134,9 @@ var gmap = {
                         dataType: "jsonp",
                         jsonpCallback: "gmap.wikipediaCallback"
                     }
-                    $.ajax(request);
+                    $.ajax(request).fail(function(err) {
+                        $("#wikipediaResults").html('<br/><i>Error retrieving Wikipedia data</i>');                        
+                    });
                     $("#btnAjaxWikipedia").html('--');
                 }
                 else {
@@ -183,7 +185,9 @@ var gmap = {
                 dataType: "jsonp",
                 jsonpCallback: "gmap.wikipediaImgCallback"
             }
-            $.ajax(request);
+            $.ajax(request).fail(function(err) {
+                thehtml += '<br/><i>Error retrieving Wikipedia images</i>'
+            });;
         }
         else {
             thehtml += '<br/><i>no images available</i>'
@@ -276,5 +280,15 @@ var gmap = {
             new google.maps.Point(10, 34),
             new google.maps.Size(21,34));
         return markerImage;
+    },
+
+    // handle errors from loading google maps script
+    mapError : function() {
+        if (!theViewModel) {
+            theViewModel = new ViewModel();
+            ko.applyBindings(theViewModel);
+        }
+
+        theViewModel.mapError();
     }
 }
