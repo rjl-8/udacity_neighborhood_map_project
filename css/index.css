@@ -34,6 +34,10 @@ body {
     left: 0px;
 }
 
+.rightofpane {
+    left: 150px;
+}
+
 .leftpane {
     position: absolute;
     margin: 0;

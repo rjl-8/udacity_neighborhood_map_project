@@ -25,6 +25,7 @@ var ViewModel = function() {
         $('#leftpane').toggleClass('compressed');
         $('#leftpane').toggleClass('uncompressed');
         $('#detailarea').toggleClass('hide');
+        $('#map').toggleClass('rightofpane');
         if ($('#leftpane').hasClass('uncompressed')) {
             this.filterLocations();
         }
@@ -58,7 +59,7 @@ var ViewModel = function() {
         }
         $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
 
-        gmap.selectLocation();
+        gmap.selectLocation('ViewModel');
     };
 
     // perform actions based on selection of a location, either through
@@ -68,8 +69,8 @@ var ViewModel = function() {
         for (var i = 0; i < filteredLocations.length; i++) {
             $('#idx' + filteredLocations[i].id).removeClass('grayback').addClass('blackback')
         }
-        if (gmap.current !== null) {
-            $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
+        if (gmap.getCurrentIdx() !== null) {
+            $('#idx' + filteredLocations[gmap.getCurrentIdx()].id).addClass('grayback').removeClass('blackback')
         }
     };
 };

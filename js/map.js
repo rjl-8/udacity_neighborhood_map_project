@@ -42,7 +42,7 @@ var gmap = {
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
                 gmap.current = this.id;
-                gmap.selectLocation();
+                gmap.selectLocation('gmap');
             });
         };
 
@@ -71,14 +71,21 @@ var gmap = {
 
     // perform actions based on selection of a location, either through
     // marker or list
-    selectLocation : function() {
+    selectLocation : function(inCaller) {
         for (var i = 0; i < filteredLocations.length; i++) {
             filteredLocations[i].marker.setIcon(defaultIcon);
         }
         filteredLocations[gmap.getCurrentIdx()].marker.setIcon(highlightedIcon);
         gmap.populateInfoWindow();
 
-        theViewModel.selectLocationFromGmap();
+        if (inCaller == 'ViewModel') {
+            map.setCenter(filteredLocations[gmap.getCurrentIdx()].marker.position);
+            map.panBy(50, 0);
+        }
+
+        if (inCaller == 'gmap') {
+            theViewModel.selectLocationFromGmap();
+        }
     },
 
     // This function populates the infowindow when a location is selected, if its
