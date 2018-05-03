@@ -5,7 +5,7 @@ for (var i = 0; i < locations.length; i++) {
     locations[i].id = i;
     var obj = locations[i];
     filteredLocations[i] = obj;
-};
+}
 
 // the variable to be the viewmodel
 var theViewModel = null;
@@ -18,7 +18,7 @@ var ViewModel = function() {
     for (var i = 0; i < locations.length; i++) {
         var obj = locations[i];
         this.currentLocations.push(obj);
-    };
+    }
 
     // toggle leftpane to expand or contract it
     this.clickBurger = function() {
@@ -37,7 +37,7 @@ var ViewModel = function() {
         var j = 0;
         for (var i = 0; i < locations.length; i++) {
             if (locations[i].title.toLowerCase().indexOf(this.filterText().toLowerCase()) != -1
-                || this.filterText().trim() == '') {
+                || this.filterText().trim() === '') {
                 var obj = locations[i];
                 filteredLocations[j++] = obj;
                 this.currentLocations.push(obj);
@@ -57,18 +57,18 @@ var ViewModel = function() {
             }
         }
         $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
-        
+
         gmap.selectLocation();
     };
 
     // perform actions based on selection of a location, either through
-    // marker or list - these are the actions done on the list based on 
+    // marker or list - these are the actions done on the list based on
     // marker selection
     this.selectLocationFromGmap = function () {
         for (var i = 0; i < filteredLocations.length; i++) {
             $('#idx' + filteredLocations[i].id).removeClass('grayback').addClass('blackback')
         }
-        if (gmap.current != null) {
+        if (gmap.current !== null) {
             $('#idx' + filteredLocations[gmap.current].id).addClass('grayback').removeClass('blackback')
         }
     };

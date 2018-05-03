@@ -38,7 +38,7 @@ var gmap = {
                 icon: defaultIcon,
                 id: i
             });
-            
+
             // Create an onclick event to open the large infowindow at each marker.
             locations[i].marker.addListener('click', function() {
                 gmap.current = this.id;
@@ -91,7 +91,7 @@ var gmap = {
             gmap.strGoogleRes = '';
             gmap.strWikiRes = '';
             gmap.setContentInfoWindow();
-        }  
+        }
     },
 
     // this function sets the content of the infowindow
@@ -240,7 +240,7 @@ var gmap = {
         service.textSearch(request, gmap.textSearchCallback);
     },
 
-    // textSearch callback - just used to get the place_id and 
+    // textSearch callback - just used to get the place_id and
     // initiate another google places call
     textSearchCallback : function(places, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
