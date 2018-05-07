@@ -45,6 +45,7 @@ var ViewModel = function() {
             };
         };
         gmap.showListings();
+        gmap.current = null;
         this.selectLocationFromGmap();
     };
 
